@@ -3,6 +3,8 @@ import axios from "axios";
 import Footer from "./common/Footer";
 import { auth } from "../config/firebase";
 
+const API_BASE = "https://blog-portfolio-backend-ejy4.onrender.com";
+
 function Projects() {
   const [projects, setProjects] = useState([]);
   const [admin, setAdmin] = useState(false);
@@ -14,7 +16,7 @@ function Projects() {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    auth.onAuthStateChanged((user) => {
+    const unsub = auth.onAuthStateChanged((user) => {
       if (user && user.uid === "QyBafva6X6c9vqVOKIlIj8NYX6H2") {
         setAdmin(true);
       } else {
@@ -23,18 +25,21 @@ function Projects() {
     });
 
     fetchProjects();
+    return () => unsub();
   }, []);
 
-  const fetchProjects = () => {
-    axios
-      .get("http://localhost:5000/api/blogs")
-      .then((res) => setProjects(res.data))
-      .catch(() => {});
+  const fetchProjects = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/api/blogs`);
+      setProjects(res.data);
+    } catch (err) {}
   };
 
   const handleLike = async (id) => {
-    await axios.patch(`http://localhost:5000/api/blogs/like/${id}`);
-    fetchProjects();
+    try {
+      await axios.patch(`${API_BASE}/api/blogs/like/${id}`);
+      fetchProjects();
+    } catch (err) {}
   };
 
   const handleAddProject = async (e) => {
@@ -46,18 +51,20 @@ function Projects() {
       day: "numeric",
     });
 
-    await axios.post("http://localhost:5000/api/blogs", {
-      newTitle,
-      newContent,
-      projectLink,
-      date,
-      likes: 0,
-    });
+    try {
+      await axios.post(`${API_BASE}/api/blogs`, {
+        newTitle,
+        newContent,
+        projectLink,
+        date,
+        likes: 0,
+      });
 
-    setNewTitle("");
-    setNewContent("");
-    setProjectLink("");
-    fetchProjects();
+      setNewTitle("");
+      setNewContent("");
+      setProjectLink("");
+      fetchProjects();
+    } catch (err) {}
   };
 
   return (
@@ -118,7 +125,7 @@ function Projects() {
                 {project.newTitle}
               </h3>
 
-              <p className="text-sm text-gray-500 mb-2">
+              <p className="text-xs text-gray-500 mb-2">
                 {project.date}
               </p>
 

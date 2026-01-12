@@ -18,7 +18,7 @@ function Contact() {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:5000/api/contact", form); 
+      await axios.post("https://blog-portfolio-backend-ejy4.onrender.com/api/blogs", form); 
 
       setSuccess("Message sent successfully ✅"); 
       setForm({ name: "", email: "", message: "" });
